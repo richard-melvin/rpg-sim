@@ -11,16 +11,16 @@ public interface Contest {
 
 	double calcWinRatio();
 
-	static void writeResultsAsCsv(Path p, int tableSize, BiFunction<Integer, Integer, Double> cellFunc) throws IOException {
+	static void writeResultsAsCsv(Path p, int tableSize, int tableRes, BiFunction<Integer, Integer, Double> cellFunc) throws IOException {
 		
 		StringJoiner lj = new StringJoiner(System.lineSeparator());
 	
 	
 		
 		
-		for (int i = 1; i <= tableSize; i++) {
+		for (int i = tableRes; i <= tableSize; i += tableRes) {
 			StringJoiner joiner = new StringJoiner(",");
-			for (int j = 1; j <= tableSize; j++) {
+			for (int j = tableRes; j <= tableSize; j += tableRes) {
 				joiner.add(Double.toString(cellFunc.apply(i, j)));
 			}
 			lj.add(joiner.toString());

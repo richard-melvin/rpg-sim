@@ -101,14 +101,14 @@ public class SimpleContestTest {
 			return iVersusJ.calcWinRatio();
 		};
 
-		Contest.writeResultsAsCsv(Path.of("target", "skillTable.csv"), 50, f1);
+		Contest.writeResultsAsCsv(Path.of("target", "skillTable.csv"), 50, 1, f1);
 
 		BiFunction<Integer, Integer, Double> f2 = (i, j) -> {
 			SimpleContest iVersusJ = new SimpleContest(i, j, false);
 			return iVersusJ.calcWinRatio();
 		};
 
-		Contest.writeResultsAsCsv(Path.of("target", "skillTableNoTieBreak.csv"), 50, f2);
+		Contest.writeResultsAsCsv(Path.of("target", "skillTableNoTieBreak.csv"), 50, 1, f2);
 
 	}
 

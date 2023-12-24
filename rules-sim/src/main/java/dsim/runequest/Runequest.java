@@ -42,8 +42,8 @@ public class Runequest implements Contest {
 
 	public boolean isWin(int roll1, int roll2) {
 
-		int c1 = countSuccesses(roll1, skill);
-		int c2 = countSuccesses(roll2, resistance);
+		int c1 = countSuccesses(roll1, overHundredRule(skill, resistance));
+		int c2 = countSuccesses(roll2, overHundredRule(resistance, skill));
 		
 		return c1 > c2;
 	}
@@ -90,7 +90,7 @@ public class Runequest implements Contest {
 			successes++;
 		}
 		// special success
-		if (roll <= Math.round(skill/5.0))
+		if (roll <= Math.max(Math.round(skill/5.0), 1))
 		{
 			successes++;
 		}
@@ -103,7 +103,7 @@ public class Runequest implements Contest {
 		
 		// fumble
 		long fumbleThreshold = Math.max(Math.round((dsize - skill)/20.0), 1);
-		if (roll >= 101 - fumbleThreshold)
+		if (roll > 100 - fumbleThreshold)
 		{
 			successes--;
 		}
