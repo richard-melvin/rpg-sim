@@ -1,7 +1,7 @@
 /**
  * 
  */
-package dsim.runequest;
+package dsim.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dsim.Contest;
+import dsim.runequest.Runequest;
 
 public class RuneQuestTest {
 

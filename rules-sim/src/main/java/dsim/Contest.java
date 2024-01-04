@@ -15,11 +15,16 @@ public interface Contest {
 		
 		StringJoiner lj = new StringJoiner(System.lineSeparator());
 	
-	
-		
-		
+		StringJoiner header = new StringJoiner(",");
+		header.add("");
+		for (int j = tableRes; j <= tableSize; j += tableRes) {
+			header.add("" + j);
+		}
+		lj.add(header.toString());
+
 		for (int i = tableRes; i <= tableSize; i += tableRes) {
 			StringJoiner joiner = new StringJoiner(",");
+			joiner.add("" + i);
 			for (int j = tableRes; j <= tableSize; j += tableRes) {
 				joiner.add(Double.toString(cellFunc.apply(i, j)));
 			}

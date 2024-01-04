@@ -1,7 +1,7 @@
 /**
  * 
  */
-package dsim.questworlds.test;
+package dsim.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;

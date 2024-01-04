@@ -54,14 +54,8 @@ public class Runequest implements Contest {
 		int highest = Math.max(baseChance, opposition);
 		int lowest = Math.min(baseChance, opposition);
 
-		if (highest <= 100)
-		{
-			return baseChance;
-		}
-		
 		int delta = Math.clamp(highest - 100, 0, lowest);
 		
-
 		return baseChance - delta;
 		
 	}
