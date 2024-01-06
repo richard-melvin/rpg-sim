@@ -9,69 +9,100 @@ public class Rivers implements Contest {
 
 	final private Die d20 = new Die(20);
 
-	final int maxNormal = 96;
-	final int skill;
+	final static int maxNormal = 96;
+	
+	record Contestant (int base, int bonusDie) {
+		
+		public int effectiveSkill() {
 
-	final int resistance;
+			int baseEffective = Math.min(maxNormal, base);
 
-	public Rivers(int skill, int resistance) {
+			int excess = base - maxNormal;
+
+			return baseEffective + Math.min(0, excess / 100);
+
+		}
+		
+
+		public int tieBreakBonus() {
+
+			return Math.max(0, base - maxNormal);
+
+		}
+	}
+	
+	final Contestant pc;
+
+	final Contestant opposition;
+
+
+
+	public Rivers(int skill, int skillBonus, int resistance, int resistanceBonus) {
 		super();
-		this.skill = skill;
-		this.resistance = resistance;
+		this.pc = new Contestant(skill, skillBonus);
+		this.opposition = new Contestant(resistance, resistanceBonus);
+
 	}
 
+	public Rivers(int skill, int resistance) {
+		this(skill, 0, resistance, 0);
+	}
 	@Override
 	public double calcWinRatio() {
 
-		double totalwins = 0;
+		double totalWins = 0;
+		int totalsSamples = 0;
 
 		for (int i : d100.allValues()) {
 
 			for (int j : d100.allValues()) {
-				if (isWin(i, j)) {
-					totalwins++;
-				}
+				totalWins += winRatioGiven(i, j);
+				totalsSamples++;
 			}
 		}
 
-		return totalwins / (d100.getSize() * d100.getSize());
+		return totalWins / totalsSamples;
 
 	}
+	
+	
+	public double winRatioGiven(int roll1, int roll2) {
+		int c1 = roll1 <= pc.effectiveSkill() ? 1 : 0;
+		int c2 = roll2 <= opposition.effectiveSkill()  ? 1 : 0;
+
+		if (c1 > c2) {
+			return 1.0;
+		}
+
+		if (c1 == c2) {
+			return tiebreakRule(roll1, roll2) ? 1.0 : 0.0;
+		}
+		return 0.0;
+		
+		
+	}
+	
 
 	public boolean isWin(int roll1, int roll2) {
 
-		int c1 = roll1 <= effectiveSkill(skill) ? 1 : 0;
-		int c2 = roll2 <= effectiveSkill(resistance) ? 1 : 0;
-
+		int c1 = roll1 <= pc.effectiveSkill() ? 1 : 0;
+		int c2 = roll2 <= opposition.effectiveSkill()  ? 1 : 0;
 		if (c1 > c2) {
 			return true;
 		}
 
 		if (c1 == c2) {
-			return roll1 + tieBreakBonus(skill) > roll2 + tieBreakBonus(resistance);
+			return tiebreakRule(roll1, roll2);
 		}
 		return false;
 	}
 
-	@Override
-	public String toString() {
-		return "Rivers [skill=" + skill + ", resistance=" + resistance + "]";
+	private boolean tiebreakRule(int roll1, int roll2) {
+		return roll1 - pc.tieBreakBonus() < roll2 - opposition.tieBreakBonus();
 	}
 
-	public int effectiveSkill(int baseChance) {
 
-		int baseEffective = Math.min(maxNormal, baseChance);
 
-		int excess = baseChance - maxNormal;
 
-		return baseEffective + Math.min(0, excess / 100);
-
-	}
-
-	public int tieBreakBonus(int baseChance) {
-
-		return Math.max(0, baseChance - maxNormal);
-
-	}
 
 }

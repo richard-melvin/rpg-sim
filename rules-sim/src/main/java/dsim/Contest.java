@@ -17,7 +17,7 @@ public interface Contest {
 	
 		StringJoiner header = new StringJoiner(",");
 		header.add("");
-		for (int j = tableRes; j <= tableSize; j += tableRes) {
+		for (int j = 0; j <= tableSize; j += tableRes) {
 			header.add("" + j);
 		}
 		lj.add(header.toString());
@@ -25,7 +25,7 @@ public interface Contest {
 		for (int i = tableRes; i <= tableSize; i += tableRes) {
 			StringJoiner joiner = new StringJoiner(",");
 			joiner.add("" + i);
-			for (int j = tableRes; j <= tableSize; j += tableRes) {
+			for (int j = 0; j <= tableSize; j += tableRes) {
 				joiner.add(Double.toString(cellFunc.apply(i, j)));
 			}
 			lj.add(joiner.toString());

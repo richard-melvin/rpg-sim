@@ -30,7 +30,7 @@ public class RiversTest {
 		assertThat(new Rivers(50, 50).calcWinRatio()).isCloseTo(0.5, within(0.01));
 
 		
-		assertThat(new Rivers(10, 80).calcWinRatio()).isCloseTo(0.04, within(0.01));
+		assertThat(new Rivers(10, 80).calcWinRatio()).isCloseTo(0.25, within(0.01));
 
 		
 	}
