@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 public class Die {
 
 	final int size;
+	private static ThreadLocalRandom threadLocalRandom = ThreadLocalRandom.current();
 
 	public Die(int dsize) {
 		this.size = dsize;
@@ -20,9 +21,14 @@ public class Die {
 
 	public final IntStream randomValues() {
 
-		return IntStream.generate(() -> ThreadLocalRandom.current().nextInt(1, size + 1));
+		return IntStream.generate(this::randomValue);
 	}
 
+	public final int randomValue()
+	{
+		return threadLocalRandom.nextInt(1, size + 1);
+	}
+	
 	public int getSize() {
 		return size;
 	}

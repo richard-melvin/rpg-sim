@@ -26,7 +26,7 @@ public interface Contest {
 			StringJoiner joiner = new StringJoiner(",");
 			joiner.add("" + i);
 			for (int j = 0; j <= tableSize; j += tableRes) {
-				joiner.add(Double.toString(cellFunc.apply(i, j)));
+				joiner.add(String.format("%.3f", cellFunc.apply(i, j)));
 			}
 			lj.add(joiner.toString());
 		}
