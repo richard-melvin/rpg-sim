@@ -22,13 +22,11 @@ public class Rivers implements Contest {
 
 			int baseEffective = Math.min(maxNormal, base);
 
-			int excess = base - maxNormal;
-
-			return baseEffective + Math.min(0, excess / 100);
+			return baseEffective + Math.min(0, excessSkill() / 100);
 
 		}
 
-		public int tieBreakBonus() {
+		public int excessSkill() {
 
 			return Math.max(0, base - maxNormal);
 
@@ -42,9 +40,12 @@ public class Rivers implements Contest {
 				case INACTIVE -> 10;
 
 			};
+			
+			
+			bonusDie += Math.min(excessSkill() / 10, 5);
 
 			return switch (bonusDie) {
-				case 20 -> 3;
+				case 20, 21, 22, 23, 24, 25 -> 3;
 				case 17, 18, 19 -> 2;
 				default -> 1;
 			};
@@ -70,16 +71,19 @@ public class Rivers implements Contest {
 	final Contestant pc;
 
 	final Contestant opposition;
+	
+	final boolean useTieBreak;
 
-	public Rivers(int skill, Status skillBonus, int resistance, Status resistanceBonus) {
+	public Rivers(int skill, Status skillBonus, int resistance, Status resistanceBonus, boolean useTieBreak) {
 		super();
 		this.pc = new Contestant(skill, skillBonus);
 		this.opposition = new Contestant(resistance, resistanceBonus);
+		this.useTieBreak = useTieBreak;
 
 	}
 
 	public Rivers(int skill, int resistance) {
-		this(skill, Status.INACTIVE, resistance, Status.INACTIVE);
+		this(skill, Status.INACTIVE, resistance, Status.INACTIVE, true);
 	}
 
 	@Override
@@ -116,7 +120,7 @@ public class Rivers implements Contest {
 	}
 
 	private boolean tiebreakRule(int roll1, int roll2) {
-		return roll1 - pc.tieBreakBonus() < roll2 - opposition.tieBreakBonus();
+		return roll1 - pc.excessSkill() < roll2 - opposition.excessSkill();
 	}
 
 }

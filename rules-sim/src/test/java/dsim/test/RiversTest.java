@@ -13,6 +13,8 @@ import java.util.function.BiFunction;
 
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,68 +27,51 @@ public class RiversTest {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RiversTest.class);
 
-
-
-
 	@Test
 	public void isWin() {
 		assertThat(new Rivers(50, 50).calcWinRatio()).isCloseTo(0.5, within(0.01));
 
-		
 		assertThat(new Rivers(10, 80).calcWinRatio()).isCloseTo(0.25, within(0.01));
 
-		
-		
 	}
 
-
 	@RepeatedTest(100)
-	public void stableCalcs()
-	{
+	public void stableCalcs() {
 		Die d100 = new Die(100);
-		
+
 		Contest randomSills = new Rivers(d100.randomValue(), d100.randomValue());
 
 		assertThat(randomSills.calcWinRatio()).isCloseTo(randomSills.calcWinRatio(), within(0.003));
 	}
-	
-	
-	@Test
-	public void outputResultsTable() throws IOException {
 
-		StringJoiner lj = new StringJoiner(System.lineSeparator());
+	@ParameterizedTest
+	@EnumSource(Status.class)
+	public void outputResultsTable(Status status) throws IOException {
+
 
 		int tableSize = 250;
 		int tableRes = 5;
 		for (int i = tableRes; i <= tableSize; i += tableRes) {
 			StringJoiner joiner = new StringJoiner(",");
 			for (int j = tableRes; j <= tableSize; j += tableRes) {
-				Contest iVersusJ = new Rivers(i, j);
+				Contest iVersusJ = new Rivers(i, status, j, Status.NONE);
 				joiner.add(String.format("%.3f", iVersusJ.calcWinRatio()));
 			}
 			LOG.info("win ratio for skill {} is {}", i, joiner.toString());
-			lj.add(joiner.toString());
 		}
-
 
 	}
 
-	@Test
-	public void writeResultsFiles() throws IOException {
+	@ParameterizedTest
+	@EnumSource(Status.class)
+	public void writeResultsFiles(Status status) throws IOException {
 
-		for (Status status : Rivers.Status.values())
-		{
-			
-			BiFunction<Integer, Integer, Double> f1 = (i, j) -> {
-				Contest iVersusJ = new Rivers(i, status, j, Status.NONE);
-				return iVersusJ.calcWinRatio();
-			};
-			
-			Contest.writeResultsAsCsv(Path.of("target", "riversSkillTable" + status + ".csv"), 250, 10, f1);
-		}
-		
+		BiFunction<Integer, Integer, Double> f1 = (i, j) -> {
+			Contest iVersusJ = new Rivers(i, status, j, Status.NONE);
+			return iVersusJ.calcWinRatio();
+		};
 
-
+		Contest.writeResultsAsCsv(Path.of("target", "riversSkillTable" + status + ".csv"), 250, 10, f1);
 
 	}
 
