@@ -20,8 +20,10 @@ import org.slf4j.LoggerFactory;
 
 import dsim.Contest;
 import dsim.Die;
-import dsim.rivers.Rivers;
-import dsim.rivers.Rivers.Status;
+import dsim.rivers.ExtendedContest;
+import dsim.rivers.OngoingContest;
+import dsim.rivers.OpposedRoll;
+import dsim.rivers.OpposedRoll.Status;
 
 public class RiversTest {
 
@@ -29,9 +31,9 @@ public class RiversTest {
 
 	@Test
 	public void isWin() {
-		assertThat(new Rivers(50, 50).calcWinRatio()).isCloseTo(0.5, within(0.01));
+		assertThat(new OpposedRoll(50, 50).calcWinRatio()).isCloseTo(0.5, within(0.01));
 
-		assertThat(new Rivers(10, 80).calcWinRatio()).isCloseTo(0.25, within(0.01));
+		assertThat(new OpposedRoll(10, 80).calcWinRatio()).isCloseTo(0.04, within(0.01));
 
 	}
 
@@ -39,11 +41,36 @@ public class RiversTest {
 	public void stableCalcs() {
 		Die d100 = new Die(100);
 
-		Contest randomSills = new Rivers(d100.randomValue(), d100.randomValue());
+		Contest randomSills = new OpposedRoll(d100.randomValue(), d100.randomValue());
 
 		assertThat(randomSills.calcWinRatio()).isCloseTo(randomSills.calcWinRatio(), within(0.003));
 	}
 
+	@RepeatedTest(100)
+	public void sameSkillEvens() {
+		Die d100 = new Die(300);
+
+		final int skill = d100.randomValue();
+		OpposedRoll sammeSkill = new OpposedRoll(skill, skill);
+
+		assertThat(sammeSkill.calcWinRatio()).isCloseTo(0.495, within(0.005));
+		
+	}
+	
+
+	@RepeatedTest(100)
+	public void sameSkillExtendedEvens() {
+		Die d100 = new Die(300);
+
+		final int skill = d100.randomValue();
+		OpposedRoll sammeSkill = new OpposedRoll(skill, skill);		
+		ExtendedContest ec = new ExtendedContest(sammeSkill);
+		
+		assertThat(ec.calcWinRatio()).describedAs("skill" + skill).isCloseTo(0.5, within(0.03));
+
+	}
+	
+	
 	@ParameterizedTest
 	@EnumSource(Status.class)
 	public void outputResultsTable(Status status) throws IOException {
@@ -54,7 +81,7 @@ public class RiversTest {
 		for (int i = tableRes; i <= tableSize; i += tableRes) {
 			StringJoiner joiner = new StringJoiner(",");
 			for (int j = tableRes; j <= tableSize; j += tableRes) {
-				Contest iVersusJ = new Rivers(i, status, j, Status.NONE);
+				Contest iVersusJ = new OpposedRoll(i, status, j, Status.NONE, true);
 				joiner.add(String.format("%.3f", iVersusJ.calcWinRatio()));
 			}
 			LOG.info("win ratio for skill {} is {}", i, joiner.toString());
@@ -64,14 +91,74 @@ public class RiversTest {
 
 	@ParameterizedTest
 	@EnumSource(Status.class)
-	public void writeResultsFiles(Status status) throws IOException {
+	public void writeResultsFilesDecisive(Status status) throws IOException {
 
 		BiFunction<Integer, Integer, Double> f1 = (i, j) -> {
-			Contest iVersusJ = new Rivers(i, status, j, Status.NONE);
+			Contest iVersusJ = new OpposedRoll(i, status, j, Status.NONE, true);
 			return iVersusJ.calcWinRatio();
 		};
 
-		Contest.writeResultsAsCsv(Path.of("target", "riversSkillTable" + status + ".csv"), 250, 10, f1);
+		Contest.writeResultsAsCsv(Path.of("target", "riversSkillTableDecisive" + status + ".csv"), 250, 10, f1);
+
+	}
+	
+
+	@ParameterizedTest
+	@EnumSource(Status.class)
+	public void writeResultsFilesDecisiveInactive(Status status) throws IOException {
+
+		BiFunction<Integer, Integer, Double> f1 = (i, j) -> {
+			Contest iVersusJ = new OpposedRoll(i, status, j, Status.INACTIVE, true);
+			return iVersusJ.calcWinRatio();
+		};
+
+		Contest.writeResultsAsCsv(Path.of("target", "riversSkillTableDecisiveInactive" + status + ".csv"), 250, 10, f1);
+
+	}
+
+
+
+	@ParameterizedTest
+	@EnumSource(Status.class)
+	public void writeResultsFilesOpposed(Status status) throws IOException {
+
+		BiFunction<Integer, Integer, Double> f1 = (i, j) -> {
+			Contest iVersusJ = new OpposedRoll(i, status, j, Status.NONE, false);
+			return iVersusJ.calcWinRatio();
+		};
+
+		Contest.writeResultsAsCsv(Path.of("target", "riversSkillTableOpposed" + status + ".csv"), 250, 10, f1);
+
+	}
+
+	
+
+
+	@Test
+	public void writeResultsFilesExtended() throws IOException {
+
+		BiFunction<Integer, Integer, Double> f1 = (i, j) -> {
+			OpposedRoll iVersusJ = new OpposedRoll(i, Status.NONE, j, Status.NONE, true);
+			ExtendedContest ext = new ExtendedContest(iVersusJ);
+			return ext.calcWinRatio();
+		};
+
+		Contest.writeResultsAsCsv(Path.of("target", "riversSkillTableExtended.csv"), 250, 10, f1);
+
+	}
+	
+
+
+	@Test
+	public void writeResultsFilesOngoing() throws IOException {
+
+		BiFunction<Integer, Integer, Double> f1 = (i, j) -> {
+			OpposedRoll iVersusJ = new OpposedRoll(i, Status.NONE, j, Status.NONE, true);
+			Contest ext = new OngoingContest(iVersusJ);
+			return ext.calcWinRatio();
+		};
+
+		Contest.writeResultsAsCsv(Path.of("target", "riversSkillTableOngoing.csv"), 250, 10, f1);
 
 	}
 

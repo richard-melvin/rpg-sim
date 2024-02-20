@@ -3,11 +3,11 @@ package dsim.rivers;
 import dsim.Contest;
 import dsim.Die;
 
-public class Rivers implements Contest {
+public class OpposedRoll implements Contest {
 
-	final private static Die d100 = new Die(100);
+	final static Die d100 = new Die(100);
 
-	final private static Die d20 = new Die(20);
+	final static Die d20 = new Die(20);
 
 	final static int maxNormal = 96;
 
@@ -28,7 +28,7 @@ public class Rivers implements Contest {
 
 		public int excessSkill() {
 
-			return Math.max(0, base - maxNormal);
+			return Math.max(0, base - 100);
 
 		}
 
@@ -37,44 +37,50 @@ public class Rivers implements Contest {
 				case ADVANTAGE, INSPIRATION -> Math.max(d20.randomValue(), d20.randomValue());
 				case DISADVANTAGE -> Math.min(d20.randomValue(), d20.randomValue());
 				case NONE -> d20.randomValue();
-				case INACTIVE -> 10;
-
-			};
-			
-			
-			bonusDie += Math.min(excessSkill() / 10, 5);
-
-			return switch (bonusDie) {
-				case 20, 21, 22, 23, 24, 25 -> 3;
-				case 17, 18, 19 -> 2;
-				default -> 1;
+				case INACTIVE -> 1;
 			};
 
+			if (bonusDie + (excessSkill() / 50) >= 20) {
+				return 3;
+			}
+			
+			if (bonusDie > 1 && bonusDie + (excessSkill() / 10) >= 17) {
+				return 2;
+			}
+			
+			return 1;
 		}
+
 		public int failureLevel() {
 			int bonusDie = switch (status) {
 				case ADVANTAGE -> Math.max(d20.randomValue(), d20.randomValue());
-				case DISADVANTAGE, INSPIRATION  -> Math.min(d20.randomValue(), d20.randomValue());
+				case DISADVANTAGE, INSPIRATION -> Math.min(d20.randomValue(), d20.randomValue());
 				case NONE -> d20.randomValue();
-				case INACTIVE -> 10;
+				case INACTIVE -> 2;
 
 			};
 
 			return switch (bonusDie) {
-				case 1 -> -1;
-				default -> 0;
+			case 1 -> -1;
+			default -> 0;
 			};
 
+		}
+		
+		
+		public int countSuccesses (int diceRoll)
+		{
+			return diceRoll <= effectiveSkill() ? successLevel() : failureLevel();
 		}
 	}
 
 	final Contestant pc;
 
 	final Contestant opposition;
-	
+
 	final boolean useTieBreak;
 
-	public Rivers(int skill, Status skillBonus, int resistance, Status resistanceBonus, boolean useTieBreak) {
+	public OpposedRoll(int skill, Status skillBonus, int resistance, Status resistanceBonus, boolean useTieBreak) {
 		super();
 		this.pc = new Contestant(skill, skillBonus);
 		this.opposition = new Contestant(resistance, resistanceBonus);
@@ -82,7 +88,7 @@ public class Rivers implements Contest {
 
 	}
 
-	public Rivers(int skill, int resistance) {
+	public OpposedRoll(int skill, int resistance) {
 		this(skill, Status.INACTIVE, resistance, Status.INACTIVE, true);
 	}
 
@@ -90,12 +96,11 @@ public class Rivers implements Contest {
 	public double calcWinRatio() {
 
 		double totalWins = 0;
-		long totalsSamples = 5_000_000;
+		long totalsSamples = 1_000_000;
 
 		for (int count = 0; count < totalsSamples; count++) {
 
-			if (isWin(d100.randomValue(), d100.randomValue()))
-			{
+			if (isWin(d100.randomValue(), d100.randomValue())) {
 				totalWins++;
 			}
 		}
@@ -104,11 +109,10 @@ public class Rivers implements Contest {
 
 	}
 
-
 	public boolean isWin(int roll1, int roll2) {
 
-		int c1 = roll1 <= pc.effectiveSkill() ? pc.successLevel() : pc.failureLevel();
-		int c2 = roll2 <= opposition.effectiveSkill() ? opposition.successLevel() : opposition.failureLevel();
+		int c1 = pc.countSuccesses(roll1);
+		int c2 = opposition.countSuccesses(roll2);
 		if (c1 > c2) {
 			return true;
 		}
@@ -120,7 +124,13 @@ public class Rivers implements Contest {
 	}
 
 	private boolean tiebreakRule(int roll1, int roll2) {
-		return roll1 - pc.excessSkill() < roll2 - opposition.excessSkill();
+		if (useTieBreak)
+		{
+			return roll1 > roll2;			
+		}
+		
+		return false;
+		
 	}
 
 }

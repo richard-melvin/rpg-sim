@@ -19,7 +19,6 @@ import dsim.questworlds.ExtendedContest;
 import dsim.questworlds.SimpleContest;
 
 
-@Disabled
 public class ExtendedContestTest {
 
 	
@@ -45,7 +44,7 @@ public class ExtendedContestTest {
 			return new ExtendedContest(iVersusJ).calcWinRatio();
 		};
 
-		Contest.writeResultsAsCsv(Path.of("target", "extendedSkillTable.csv"), 50, 1, f1);
+		Contest.writeResultsAsCsv(Path.of("target", "extendedSkillTable.csv"), 25, 1, f1);
 
 
 	}

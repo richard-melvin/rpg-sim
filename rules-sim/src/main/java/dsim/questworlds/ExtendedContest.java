@@ -1,10 +1,6 @@
 package dsim.questworlds;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.PrimitiveIterator.OfInt;
-import java.util.function.BiFunction;
-import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +14,12 @@ public class ExtendedContest implements Contest {
 	
 	private final SimpleContest simple;
 	
-	private final int numSamples = 1000000;
+	private final int numSamples = 100000;
 	
 	private final int winTarget = 5;
 	
 	private final int lossTarget = 5;
+	double rolls = 0;
 
 	public ExtendedContest(SimpleContest simple) {
 		super();
@@ -36,11 +33,12 @@ public class ExtendedContest implements Contest {
 		
 		for (int i = 0; i < numSamples; i++)  {
 			OfInt random = new Die(simple.dsize).randomValues().iterator();
-			LOG.debug("checking for sample {} of {}", i, simple);
+			// LOG.debug("checking for sample {} of {}", i, simple);
 			if (isRandomWin(random)) {
 				numWins++;
 			}
 		}
+		LOG.debug(" got {}/{} after {} rolls", numWins, numSamples, rolls/numSamples);
 				
 		return numWins/numSamples;
 	}
@@ -49,7 +47,6 @@ public class ExtendedContest implements Contest {
 	public boolean isRandomWin(OfInt random) {
 		
 
-		int rolls = 0;
 		int totalSuccesses = 0;
 		int totalLosses = 0;
 
@@ -68,7 +65,6 @@ public class ExtendedContest implements Contest {
 
 			}
 
-			LOG.debug(" got {}/{} after {} rolls", totalSuccesses, totalLosses, rolls);
 		}
 		
 		
