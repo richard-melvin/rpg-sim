@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import dsim.Contest;
 import dsim.runequest.Runequest;
+import dsim.runequest.RunequestThree;
 
 public class RuneQuestTest {
 
@@ -166,6 +167,22 @@ public class RuneQuestTest {
 		};
 
 		Contest.writeResultsAsCsv(Path.of("target", "rqSkillTable.csv"), 250, 10, f1);
+
+
+
+	}
+
+	
+
+	@Test
+	public void writeResultsFilesRQ3() throws IOException {
+
+		BiFunction<Integer, Integer, Double> f1 = (i, j) -> {
+			Contest iVersusJ = new RunequestThree(i, j);
+			return iVersusJ.calcWinRatio();
+		};
+
+		Contest.writeResultsAsCsv(Path.of("target", "rq3SkillTable.csv"), 250, 10, f1);
 
 
 
